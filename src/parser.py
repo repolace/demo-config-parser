@@ -12,7 +12,22 @@ from pathlib import Path
 
 
 def _strip_inline_comment(value):
-    return value.split("#", 1)[0].strip()
+    in_quote = False
+    quote_char = None
+    
+    for i, char in enumerate(value):
+        if char in ('"', "'"):
+            if not in_quote:
+                in_quote = True
+                quote_char = char
+            elif quote_char == char:
+                in_quote = False
+                quote_char = None
+        elif char == '#':
+            if not in_quote:
+                if i == 0 or value[i-1].isspace():
+                    return value[:i].strip()
+    return value.strip()
 
 
 def _unquote(value):
